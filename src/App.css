@@ -2,6 +2,20 @@
   text-align: center;
 }
 
-.MuiInput-underline:before {
-  border-bottom: 1px solid #A3D3FF;
+.main {
+  min-height: calc(100vh - 88px);
+  position: relative;
+  padding-top: 70px;
+}
+
+.main::after {
+  content: "";
+  background-image: url('./components/images/bg.jpg');
+  opacity: 0.3;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
 }
