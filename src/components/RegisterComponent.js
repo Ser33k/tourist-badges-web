@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -12,6 +12,10 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Alert from '@material-ui/lab/Alert';
+
+import { useAuth } from "../contexts/AuthContext";
+import firebase from "firebase/compat";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -50,13 +54,81 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     subtitle: {
-        color: '#072643'
+        color: '#072643',
+        marginBottom: '10px'
     }
 
 }));
 
 const RegisterComponent = () => {
     const classes = useStyles();
+
+    const ref = firebase.firestore().collection("points")
+
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [password2, setPassword2] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [selectedDate, setSelectedDate] = useState('')
+
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    const handleChangeEmail = (e) => setEmail(e.target.value);
+    const handleChangePassword = (e) => setPassword(e.target.value);
+    const handleChangePassword2 = (e) => setPassword2(e.target.value);
+    const handleChangeFirstName = (e) => setFirstName(e.target.value);
+    const handleChangeLastName = (e) => setLastName(e.target.value);
+    const handleDateChange = e => setSelectedDate(e.target.value);
+
+    const {signup} = useAuth();
+
+    const addItem = item => {
+        debugger;
+        ref.doc(item.id)
+            .set(item)
+            .then(r => console.log(r))
+            .catch(err => console.error(err))
+
+    }
+
+    async function handleSubmit(e){
+        e.preventDefault();
+
+        if (password !== password2){
+            return setError('Passwords do not match')
+        }
+
+        try {
+            setError('')
+            setLoading(true)
+            await signup(email, password)
+                // .then(function (result) {
+                //         id = (result.user.uid)
+                    //     return result.user.updateProfile({
+                    //     displayName: `${firstName} ${lastName}`,
+                    // }
+                    // )
+                            .then(function (result){
+                        return addItem({
+                            user_id: result.user.uid,
+                            age: new Date().getFullYear() - new Date(selectedDate).getFullYear(),
+                            points: 0,
+                            name: `${firstName} ${lastName}`
+                        });
+                })
+
+
+
+        }catch {
+            setError('Failed to create an account')
+        }
+
+        setLoading(false)
+    }
+
 
     return (
         <>
@@ -69,7 +141,9 @@ const RegisterComponent = () => {
                     <Typography component="h1" variant="h3" className={classes.subtitle}>
                         Sign up
                     </Typography>
-                    <form className={classes.form} noValidate>
+                    {/*{currentUser.email}*/}
+                    {error && <Alert variant='outlined' severity="error">{error}</Alert>}
+                    <form className={classes.form} noValidate onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -84,6 +158,8 @@ const RegisterComponent = () => {
                                     InputLabelProps={{
                                         style: {color: '#223E57'}
                                     }}
+                                    value={firstName}
+                                    onChange={handleChangeFirstName}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -98,6 +174,21 @@ const RegisterComponent = () => {
                                     InputLabelProps={{
                                         style: {color: '#223E57'}
                                     }}
+                                    value={lastName}
+                                    onChange={handleChangeLastName}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="date"
+                                    name="date"
+                                    autoComplete="date"
+                                    type={'date'}
+                                    className={classes.input}
+                                    value={selectedDate}
+                                    onChange={handleDateChange}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -112,6 +203,8 @@ const RegisterComponent = () => {
                                     InputLabelProps={{
                                         style: {color: '#223E57'}
                                     }}
+                                    value={email}
+                                    onChange={handleChangeEmail}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -127,6 +220,25 @@ const RegisterComponent = () => {
                                     InputLabelProps={{
                                         style: {color: '#223E57'}
                                     }}
+                                    value={password}
+                                    onChange={handleChangePassword}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    name="password2"
+                                    label="Password confirmation"
+                                    type="password"
+                                    id="password"
+                                    autoComplete="current-password"
+                                    className={classes.input}
+                                    InputLabelProps={{
+                                        style: {color: '#223E57'}
+                                    }}
+                                    value={password2}
+                                    onChange={handleChangePassword2}
                                 />
                             </Grid>
                         </Grid>
@@ -136,6 +248,7 @@ const RegisterComponent = () => {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            disabled={loading}
                         >
                             Sign Up
                         </Button>

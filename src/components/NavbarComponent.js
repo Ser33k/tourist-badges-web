@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import {TextField} from "@material-ui/core";
+import {Link, TextField} from "@material-ui/core";
 import icon from './images/mountain.png'
+import {useAuth} from "../contexts/AuthContext";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
         color: '#A3D3FF',
         "& .MuiInput-underline:before": {
             borderColor: '#A3D3FF',
-            "&:hover":{
+            "&:hover": {
                 borderColor: '#A3D3FF',
             }
         },
@@ -40,15 +42,62 @@ const useStyles = makeStyles((theme) => ({
         }
 
     },
-    button: {
+    buttonLogin: {
         backgroundColor: "#84B44C"
+    },
+    buttonLogout: {
+        backgroundColor: "#A3D3FF"
+    },
+    loginForm: {
+        display: 'flex'
     }
+
 
 }));
 
 const NavbarComponent = () => {
 
     const classes = useStyles();
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    const handleChangeEmail = (e) => setEmail(e.target.value);
+    const handleChangePassword = (e) => setPassword(e.target.value);
+
+
+    const {currentUser, login, logout} = useAuth();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        try {
+            setError('')
+            setLoading(true)
+            await login(email, password)
+            setPassword('')
+            setEmail('')
+
+
+        } catch {
+            setError('Failed to sign in')
+            setPassword('')
+        }
+
+        setLoading(false)
+    }
+
+    async function handleLogout(){
+        setError('')
+        try{
+            await logout()
+        }catch {
+            setError('Failed to logout')
+        }
+    }
 
     return (
         <>
@@ -60,15 +109,36 @@ const NavbarComponent = () => {
                     <Typography variant="h3" className={classes.title}>
                         Tourist badges
                     </Typography>
-                    <TextField InputLabelProps={{
-                        style: {color: '#A3D3FF'}
-                    }}
-                               className={classes.input} id="username" label="Username" type="email" autoFocus
-                               required/>
-                    <TextField InputLabelProps={{
-                        style: {color: '#A3D3FF'}
-                    }} className={classes.input} id="username" label="Password" type="password" required/>
-                    <Button className={classes.button} >Login</Button>
+
+                    {currentUser ?
+                        (
+                            <>
+                                <Button className={classes.buttonLogout} onClick={handleLogout}>Logout</Button>
+                            </>
+                                )
+                            :
+                        (
+                        <form className={classes.loginForm} onSubmit={handleSubmit}>
+                        <TextField InputLabelProps={{
+                            style: {color: '#A3D3FF'}
+                        }}
+                                   className={classes.input} id="email" label="E-mail" type="email" autoFocus
+                                   required
+                                   value={email}
+                                   onChange={handleChangeEmail}
+                        />
+                        <TextField InputLabelProps={{
+                            style: {color: '#A3D3FF'}
+                        }} className={classes.input} id="password" label="Password" type="password" required
+                                   value={password}
+                                   onChange={handleChangePassword}
+                        />
+                        <Button type='submit' className={classes.buttonLogin}>Login</Button>
+                    </form>
+                    )
+                    }
+                    {error && <Alert style={{marginLeft: '15px'}} variant='filled' severity="error">{error}</Alert>}
+
                 </Toolbar>
             </AppBar>
         </>
