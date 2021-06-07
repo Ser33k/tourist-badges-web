@@ -5,10 +5,15 @@
 .main {
   min-height: calc(100vh - 88px);
   position: relative;
+}
+
+.register-container {
+  position: relative;
+  min-height: calc(100vh - 88px);
   padding-top: 70px;
 }
 
-.main::after {
+.register-container::after {
   content: "";
   background-image: url('./components/images/bg.jpg');
   opacity: 0.3;

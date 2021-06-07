@@ -131,7 +131,7 @@ const RegisterComponent = () => {
 
 
     return (
-        <>
+        <div className={"register-container"}>
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <div className={classes.paper}>
@@ -255,7 +255,7 @@ const RegisterComponent = () => {
                     </form>
                 </div>
             </Container>
-        </>
+        </div>
     );
 };
 

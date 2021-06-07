@@ -12,9 +12,9 @@ const TouristBadgesComponent = () => {
     return (
         <div>
             <NavbarComponent/>
-            <div className="main">
+            <main className="main">
                 {currentUser ? <DashboardComponent/> : <RegisterComponent/>}
-            </div>
+            </main>
         </div>
     );
 };
