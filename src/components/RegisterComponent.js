@@ -3,18 +3,14 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Alert from '@material-ui/lab/Alert';
 
-import { useAuth } from "../contexts/AuthContext";
+import {useAuth} from "../contexts/AuthContext";
 import firebase from "firebase/compat";
 
 
@@ -94,37 +90,25 @@ const RegisterComponent = () => {
 
     }
 
-    async function handleSubmit(e){
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        if (password !== password2){
+        if (password !== password2) {
             return setError('Passwords do not match')
         }
 
-        try {
-            setError('')
-            setLoading(true)
-            await signup(email, password)
-                // .then(function (result) {
-                //         id = (result.user.uid)
-                    //     return result.user.updateProfile({
-                    //     displayName: `${firstName} ${lastName}`,
-                    // }
-                    // )
-                            .then(function (result){
-                        return addItem({
-                            user_id: result.user.uid,
-                            age: new Date().getFullYear() - new Date(selectedDate).getFullYear(),
-                            points: 0,
-                            name: `${firstName} ${lastName}`
-                        });
-                })
-
-
-
-        }catch {
-            setError('Failed to create an account')
-        }
+        setError('')
+        setLoading(true)
+        await signup(email, password)
+            .then(function (result) {
+                return addItem({
+                    user_id: result.user.uid,
+                    age: new Date().getFullYear() - new Date(selectedDate).getFullYear(),
+                    points: 0,
+                    name: `${firstName} ${lastName}`,
+                    history: [],
+                });
+            }).catch(() => setError('Failed to create an account'))
 
         setLoading(false)
     }
@@ -133,10 +117,10 @@ const RegisterComponent = () => {
     return (
         <div className={"register-container"}>
             <Container component="main" maxWidth="xs">
-                <CssBaseline />
+                <CssBaseline/>
                 <div className={classes.paper}>
                     <Avatar className={classes.avatar}>
-                        <AccountCircleIcon />
+                        <AccountCircleIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h3" className={classes.subtitle}>
                         Sign up

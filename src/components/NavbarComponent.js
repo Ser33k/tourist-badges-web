@@ -74,18 +74,17 @@ const NavbarComponent = () => {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        try {
             setError('')
             setLoading(true)
             await login(email, password)
-            setPassword('')
-            setEmail('')
-
-
-        } catch {
-            setError('Failed to sign in')
-            setPassword('')
-        }
+                .then(()=> {
+                    setPassword('')
+                    setEmail('')
+                })
+                .catch(()=> {
+                    setError('Failed to sign in')
+                    setPassword('')
+                })
 
         setLoading(false)
     }
