@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {Button} from "@material-ui/core";
-import Alert from '@material-ui/lab/Alert';
 import {useAuth} from "../contexts/AuthContext";
 import firebase from "firebase/compat";
 import Backdrop from '@material-ui/core/Backdrop';
@@ -26,14 +25,16 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'rgba(163,211,255,0.3)',
         // minHeight: 'calc(100vh - 88px)',
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        padding: "0 40px 0 40px",
+
 
     },
     mainContent: {
         display: "flex",
-        minHeight: 'calc(100vh - 88px)',
         width: "100%",
         alignItems: "center",
+        flexWrap: "wrap",
         "& .content": {
             flex: "1",
             margin: "20px",
@@ -42,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-around",
-            minHeight: "70vh",
-            width: '33%',
+            height: "70vh",
+            width: '400px',
             "& svg": {
                 width: '70%'
             }
@@ -56,11 +57,13 @@ const DashboardComponent = () => {
 
     const classes = useStyles();
 
-    const [error, setError] = useState("");
     const {currentUser, logout} = useAuth()
     const [points, setPoints] = useState(0)
     const [loading, setLoading] = useState(false)
     const [userFromDb, setUserFromDb] = useState(null);
+    const [history, setHistory] = useState([]);
+    const [success, setSuccess] = useState(false);
+    
 
     const [open, setOpen] = React.useState(false);
 
@@ -68,48 +71,49 @@ const DashboardComponent = () => {
     const ref = firebase.firestore().collection("points")
 
     const getPoints = async () => {
-        // setLoading(true)
-        // ref.onSnapshot(querySnapshot => {
-        //     const items = [];
-        //     querySnapshot.forEach(doc => {
-        //         items.push(doc.data())
-        //     });
-        //
-        //     setPoints(items)
-        //     setLoading(false)
-        // })
+        setLoading(true);
         return ref.where('user_id', '==', currentUser.uid)
             .get();
 
-        // const addItem = item => {
-        //     ref.doc(item.id)
-        //         .set(item)
-        //         .then(prevState => [item, ...prevState])
-        //         .catch(err => {
-        //             console.log(err)
-        //         })
-        // }
 
     }
 
-    const addPoint = () => {
+    const handleAddTrail = async (trail, from, to) => {
+        setLoading(true)
+        if (trail && from && to) {
+            await ref.where('user_id', '==', userFromDb.user_id).get().then(querySnapshot => {
 
-        ref.where('user_id', '==', currentUser.uid).get().then(querySnapshot => {
-            setLoading(true)
-            querySnapshot.forEach(doc => {
-                ref.doc(doc.id).update({
-                    points: points + 1
+                querySnapshot.forEach(doc => {
+                    ref.doc(doc.id).update(
+                        {
+                            history: firebase.firestore.FieldValue.arrayUnion({
+                                mainDestination: trail,
+                                from: from.name,
+                                to: to.name,
+                                sum: from.score + to.score,
+                                timestamp: new Date().getTime()
+                            }),
+                            points: firebase.firestore.FieldValue.increment(from.score + to.score)
+                        },
+                    )
+                        .then(() => {
+                            setSuccess(true);
+
+                            setHistory(prevState => [...prevState, {
+                                mainDestination: trail,
+                                from: from.name,
+                                to: to.name,
+                                sum: from.score + to.score,
+                                timestamp: new Date().getTime()
+                            }]);
+                            setPoints(prevState => prevState + from.score + to.score);
+                        })
                 })
-                    .then(() => {
-                        setPoints(prevState => prevState + 1);
-                        setLoading(false)
 
-                    })
-            })
-
-        }).catch(() => console.error("Error"))
-
-
+                setTimeout(() => setSuccess(false), 3000);
+            }).catch(() => console.error("Error"))
+        }
+        setLoading(false)
     }
 
 
@@ -122,32 +126,26 @@ const DashboardComponent = () => {
             .then(item => {
                 const items = item.docs.map(doc => doc.data());
                 setUserFromDb(items[0]);
-                setPoints(items[0].points)
+                setPoints(items[0].points);
+                setHistory(items[0].history)
+                // console.log(items[0].history)
+                setLoading(false)
             })
+
     }, [])
 
-
+    // console.log(userFromDb)
     return (
         <>
             <div className={classes.container}>
-                {/*/!*{loading && <h1>loading...</h1>}*!/*/}
-                {/*{error && <Alert variant="outlined" severity='error'/>}*/}
-
-                {/*<Button disabled={loading} onClick={addPoint} variant={"contained"}>Add point</Button>*/}
-                <BadgesComponent />
+               <BadgesComponent points={points && points} age={userFromDb && userFromDb.age}/>
                 <main className={classes.mainContent}>
                     <DetailsComponent currentUser={currentUser} userFromDb={userFromDb} points={points}/>
-                    <AddTrailComponent />
-                    <HistoryComponent />
+                    <AddTrailComponent handleAddTrail={handleAddTrail} userFromDb={userFromDb} success={success}/>
+                    <HistoryComponent history={history}/>
                 </main>
-                {/*<div style={{background: "#ff0000", height: '100px'}}></div>*/}
-                {/*<div style={{display: "flex", minHeight: '100vh'}}>*/}
-                {/*    <div style={{background: "#ffff00", height: '100vh', flex: 1}}></div>*/}
-                {/*    <div style={{background: "#ffffa5", height: '100px', flex: 1}}></div>*/}
-                {/*    <div style={{background: "#ffff00", height: '100px', flex: 1}}></div>*/}
-                {/*</div>*/}
             </div>
-            <Backdrop className={classes.backdrop} open={loading} onClick={handleClose}>
+            <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit"/>
             </Backdrop>
         </>
