@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: '15px',
         paddingBottom: '5px',
         display: "inline-block",
-        color: '#72b4fc'
+        color: '#223E57'
     },
     infoButton: {
         position: "absolute",

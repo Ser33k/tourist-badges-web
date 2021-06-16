@@ -73,7 +73,7 @@ const HistoryComponent = (props) => {
 
     return (
         <Paper className={'content'}>
-            <h2>HISTORY</h2>
+            {/*<h2>HISTORY</h2>*/}
             <ul className={`${classes.scrollbar} ${classes.list}`} style={{maxHeight: '100%', overflow: 'auto'}}>
             {props.history && props.history.map((el,index) => (<li key={index} className={classes.listItem}>
                 {/*<p>Destination: {el.mainDestination}</p>*/}
