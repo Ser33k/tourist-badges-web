@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         // minHeight: 'calc(100vh - 88px)',
         display: "flex",
         flexDirection: "column",
-        padding: "0 40px 0 40px",
+        padding: "40px",
 
 
     },

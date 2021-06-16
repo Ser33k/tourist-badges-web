@@ -7,14 +7,14 @@
 }
 
 .main {
-  min-height: calc(100vh - 88px);
+  min-height: calc(100vh - 88px - 5vh);
   position: relative;
 }
 
 .register-container {
   position: relative;
-  min-height: calc(100vh - 88px);
-  padding-top: 70px;
+  min-height: calc(100vh - 88px - 5vh);
+  padding-top: 40px;
 }
 
 .register-container::after {

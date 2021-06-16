@@ -15,7 +15,6 @@ const useStyles = makeStyles((theme) => ({
     badges: {
 
         width: '70vw',
-        marginTop: '50px',
         marginLeft: 'auto',
         marginRight: 'auto',
         padding: "10px",
@@ -84,7 +83,7 @@ function getModalStyle() {
 const BadgesComponent = (props) => {
     const classes = useStyles();
 
-    const [openModal, setOpenModal] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
     const [modalStyle] = useState(getModalStyle);
 
     const [popularOpacity, setPopularOpacity] = useState(true);
