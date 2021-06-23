@@ -75,7 +75,7 @@ const HistoryComponent = (props) => {
         <Paper className={'content'}>
             {/*<h2>HISTORY</h2>*/}
             <ul className={`${classes.scrollbar} ${classes.list}`} style={{maxHeight: '100%', overflow: 'auto'}}>
-            {props.history && props.history.map((el,index) => (<li key={index} className={classes.listItem}>
+            {props.history.length > 0 ? props.history.map((el,index) => (<li key={index} className={classes.listItem}>
                 {/*<p>Destination: {el.mainDestination}</p>*/}
                 {/*<p>From: {el.from}</p>*/}
                 {/*<p>To: {el.to}</p>*/}
@@ -103,7 +103,7 @@ const HistoryComponent = (props) => {
                     </AccordionDetails>
                 </Accordion>
 
-            </li>))}
+            </li>)) : <h2>History</h2>}
 
 
 

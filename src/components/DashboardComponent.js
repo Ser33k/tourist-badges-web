@@ -89,7 +89,7 @@ const DashboardComponent = () => {
     const [modalStyle] = useState(getModalStyle);
     const [openModal, setOpenModal] = useState(false);
 
-    const {currentUser, logout} = useAuth()
+    const {currentUser, logout} = useAuth();
     const [points, setPoints] = useState(0)
     const [loading, setLoading] = useState(false)
     const [userFromDb, setUserFromDb] = useState(null);
