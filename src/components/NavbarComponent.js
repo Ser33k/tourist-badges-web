@@ -9,6 +9,7 @@ import {Link, TextField} from "@material-ui/core";
 import icon from './images/mountain.png'
 import {useAuth} from "../contexts/AuthContext";
 import Alert from "@material-ui/lab/Alert";
+import ChangePasswordComponent from "./ChangePasswordComponent";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -48,12 +49,20 @@ const useStyles = makeStyles((theme) => ({
     buttonLogout: {
         backgroundColor: "#A3D3FF"
     },
+    buttonChangePassword: {
+        marginRight: "20px",
+        // backgroundColor: "#84B44C"
+        color: "#fff"
+    },
     loginForm: {
         display: 'flex'
-    }
+    },
+
 
 
 }));
+
+
 
 const NavbarComponent = () => {
 
@@ -63,7 +72,9 @@ const NavbarComponent = () => {
     const [password, setPassword] = useState('');
 
     const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+
+    const [changing, setChanging] = useState(false);
 
     const handleChangeEmail = (e) => setEmail(e.target.value);
     const handleChangePassword = (e) => setPassword(e.target.value);
@@ -74,28 +85,37 @@ const NavbarComponent = () => {
     async function handleSubmit(e) {
         e.preventDefault();
 
-            setError('')
-            setLoading(true)
-            await login(email, password)
-                .then(()=> {
-                    setPassword('')
-                    setEmail('')
-                })
-                .catch(()=> {
-                    setError('Failed to sign in')
-                    setPassword('')
-                })
+        setError('')
+        setLoading(true)
+        await login(email, password)
+            .then(() => {
+                setPassword('')
+                setEmail('')
+            })
+            .catch(() => {
+                setError('Failed to sign in')
+                setPassword('')
+            })
 
         setLoading(false)
     }
 
-    async function handleLogout(){
+    async function handleLogout() {
         setError('')
-        try{
+        try {
             await logout()
-        }catch {
+        } catch {
             setError('Failed to logout')
         }
+    }
+
+    function handleCloseModal() {
+        return setChanging(false);
+    }
+
+
+    function handleOpenChangePasswordModal() {
+        setChanging(true)
     }
 
     return (
@@ -112,34 +132,37 @@ const NavbarComponent = () => {
                     {currentUser ?
                         (
                             <>
+                                <Button className={classes.buttonChangePassword}
+                                        onClick={handleOpenChangePasswordModal}>Change password</Button>
                                 <Button className={classes.buttonLogout} onClick={handleLogout}>Logout</Button>
                             </>
-                                )
-                            :
+                        )
+                        :
                         (
-                        <form className={classes.loginForm} onSubmit={handleSubmit}>
-                        <TextField InputLabelProps={{
-                            style: {color: '#A3D3FF'}
-                        }}
-                                   className={classes.input} id="email" label="E-mail" type="email" autoFocus
-                                   required
-                                   value={email}
-                                   onChange={handleChangeEmail}
-                        />
-                        <TextField InputLabelProps={{
-                            style: {color: '#A3D3FF'}
-                        }} className={classes.input} id="password" label="Password" type="password" required
-                                   value={password}
-                                   onChange={handleChangePassword}
-                        />
-                        <Button type='submit' className={classes.buttonLogin}>Login</Button>
-                    </form>
-                    )
+                            <form className={classes.loginForm} onSubmit={handleSubmit}>
+                                <TextField InputLabelProps={{
+                                    style: {color: '#A3D3FF'}
+                                }}
+                                           className={classes.input} id="email" label="E-mail" type="email" autoFocus
+                                           required
+                                           value={email}
+                                           onChange={handleChangeEmail}
+                                />
+                                <TextField InputLabelProps={{
+                                    style: {color: '#A3D3FF'}
+                                }} className={classes.input} id="password" label="Password" type="password" required
+                                           value={password}
+                                           onChange={handleChangePassword}
+                                />
+                                <Button type='submit' className={classes.buttonLogin}>Login</Button>
+                            </form>
+                        )
                     }
                     {error && <Alert style={{marginLeft: '15px'}} variant='filled' severity="error">{error}</Alert>}
 
                 </Toolbar>
             </AppBar>
+            <ChangePasswordComponent changing={changing} handleCloseModal={handleCloseModal}/>
         </>
     );
 };
